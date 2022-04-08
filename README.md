@@ -1,5 +1,3 @@
-# user-management
-
 ## Installation
 1. In path directory from go > src, create directory dbo.com
 2. Clone this repository
