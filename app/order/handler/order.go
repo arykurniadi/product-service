@@ -67,3 +67,26 @@ func (od *OrderHandler) Create(c *gin.Context) {
 	BaseHandler.RespondJSON(c, res, nil)
 	return
 }
+
+func (od *OrderHandler) Update(c *gin.Context) {
+	req := requests.OrderCreate{}
+	err := c.ShouldBind(&req)
+	if err != nil {
+		BaseHandler.RespondError(c, err.Error(), nil)
+		return
+	}
+
+	id, _ := strconv.Atoi(c.Param("id"))
+
+	order, err := od.OrderUsecase.Update(c, id, req)
+	if err != nil {
+		BaseHandler.RespondError(c, err.Error(), nil)
+		return
+	}
+
+	res := new(transformers.Transformer)
+	res.TransformOrderUpdate(order)
+
+	BaseHandler.RespondJSON(c, res, nil)
+	return
+}

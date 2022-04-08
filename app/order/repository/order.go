@@ -66,6 +66,18 @@ func (m *OrderRepository) Create(value models.Order) (order models.Order, err er
 	return value, nil
 }
 
+func (m *OrderRepository) Update(id int, value models.Order) (order models.Order, err error) {
+	tx := m.ConnDB.Begin()
+
+	if err := tx.Model(&order).Where("id = ?", id).Updates(value).Error; err != nil {
+		tx.Rollback()
+		return order, err
+	}
+
+	tx.Commit()
+	return order, nil
+}
+
 func (m *OrderRepository) CreateOrderItem(orderItems []models.OrderItem) (err error) {
 	tx := m.ConnDB.Begin()
 
@@ -91,6 +103,20 @@ func (m *OrderRepository) CreateOrderItem(orderItems []models.OrderItem) (err er
 	sql = fmt.Sprintf(sql, strings.Join(valueStrings, ","))
 
 	if err := tx.Exec(sql, valueArgs...).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	tx.Commit()
+	return nil
+}
+
+func (m *OrderRepository) DeleteOrderItem(id int) (err error) {
+	var order models.Order
+
+	tx := m.ConnDB.Begin()
+
+	if err := tx.Where("id = ?", id).Delete(&order).Error; err != nil {
 		tx.Rollback()
 		return err
 	}

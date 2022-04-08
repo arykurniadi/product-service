@@ -63,6 +63,7 @@ func OrderHttpHandler(r *gin.Engine, od OrderInterface.IOrderUsecase) {
 	route.GET("/list", handler.GetListOrder)
 	route.GET("/detail/:id", handler.GetOrderById)
 	route.POST("", handler.Create)
+	route.PUT("/:id", handler.Update)
 }
 
 func JwtMiddleware() gin.HandlerFunc {

@@ -110,3 +110,19 @@ func (res *Transformer) TransformOrderCreate(item models.Order) {
 
 	res.Data = order
 }
+
+func (res *Transformer) TransformOrderUpdate(item models.Order) {
+	order := Order{}
+	order.Id = item.Id
+	order.TransactionNumber = item.TransactionNumber
+	order.Media = item.Media
+	order.IsMember = item.IsMember
+	order.CustomerName = item.CustomerName
+	order.CustomerEmail = item.CustomerEmail
+	order.CustomerPhone = item.CustomerPhone
+	order.CustomerAddress = item.CustomerAddress
+	order.CreatedAt = item.CreatedAt
+	order.UpdatedAt = item.UpdatedAt
+
+	res.Data = order
+}

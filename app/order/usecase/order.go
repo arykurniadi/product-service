@@ -87,3 +87,54 @@ func (od *OrderUsecase) Create(c *gin.Context, req requests.OrderCreate) (order 
 
 	return order, nil
 }
+
+func (od *OrderUsecase) Update(c *gin.Context, id int, req requests.OrderCreate) (order models.Order, err error) {
+	var orderItems []models.OrderItem
+
+	order.TransactionNumber = req.TransactionNumber
+	order.Media = req.Media
+	order.IsMember = 0
+
+	if req.IsMember {
+		customer, err := od.CustomerRepository.GetCustomerByEmail(req.Customer.Email)
+		if err != nil {
+			return order, err
+		}
+
+		order.CustomerId = customer.Id
+		order.IsMember = 1
+	} else {
+		order.CustomerName = req.Customer.Name
+		order.CustomerEmail = req.Customer.Email
+		order.CustomerPhone = req.Customer.Phone
+		order.CustomerAddress = req.Customer.Address
+	}
+
+	order.CreatedAt = time.Now()
+
+	res, err := od.OrderRepository.Update(id, order)
+	if err != nil {
+		return res, err
+	}
+
+	for _, item := range req.OrderItems {
+		orderItem := models.OrderItem{}
+		orderItem.OrderId = res.Id
+		orderItem.Name = item.Name
+		orderItem.Price = float64(item.Price)
+
+		orderItems = append(orderItems, orderItem)
+	}
+
+	err = od.OrderRepository.DeleteOrderItem(id)
+	if err != nil {
+		return res, err
+	}
+
+	err = od.OrderRepository.CreateOrderItem(orderItems)
+	if err != nil {
+		return res, err
+	}
+
+	return order, nil
+}
